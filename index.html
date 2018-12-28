@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Drawing App</title>
+        <style media="screen">
+            *{
+                box-sizing: border-box;
+                font-family: sans-serif;
+                user-select: none;
+                -webkit-user-select:none;
+                -moz-user-select:none;
+                -ms-user-select:none;
+            }
+            #toolbar{
+                width: 100%;
+                height: 50px;
+                padding: 10px;
+                position: fixed;
+                top: 0;
+                background: #2f2f2f;
+                color: white;
+            }
+            .radcontrol{
+                width: 30px;
+                height: 30px;
+                background-color: #4f4f4f;
+                display: inline-block;
+                text-align: center;
+                padding: 5px;
+            }
+            #rad{
+                float: left;
+            }
+            #colors{
+                float: right;
+            }
+            .swatch{
+                width: 30px;
+                height: 30px;
+                border-radius: 12px;
+                box-shadow: inset 0px 1px 0px rgba(255,255,255, 0.5), 0px 2px 2px rgba(0, 0, 0, 0.5);
+                display: inline-block;
+                margin-right: 10px;
+            }
+            .swatch.active{
+                border: 2px solid white;
+                box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+            }
+            footer{
+                position: fixed;
+                bottom: 0px;
+                height: 30px;
+                width: 100%;
+                background-color: #2f2f2f;
+                text-align: center;
+                color: white;
+                padding-top: 5px;
+            }
+        </style>
+    </head>
+    <body style="margi:0">
+        <div id="toolbar">
+            <div id="rad">
+                Thickness <span id="radval">10</span>
+                <div id="decrad" class="radcontrol">-</div>
+                <div id="incrad" class="radcontrol">+</div>
+            </div>
+            <div id="colors">
+                <div class="swatch active" style="background-color: black"></div>
+                <div class="swatch" style="background-color: white"></div>
+                <div class="swatch" style="background-color: salmon"></div>
+                <div class="swatch" style="background-color: red"></div>
+                <div class="swatch" style="background-color: green"></div>
+                <div class="swatch" style="background-color: blue"></div>
+                <div class="swatch" style="background-color: lightblue"></div>
+                <div class="swatch" style="background-color: yellow"></div>
+                <div class="swatch" style="background-color: orange"></div>
+                <div class="swatch" style="background-color: gray"></div>
+                <div class="swatch" style="background-color: purple"></div>
+                <div class="swatch" style="background-color: brown"></div>
+            </div>
+        </div>
+
+        <canvas id="canvas" style="display: block;">Sorry! Your browser does NOT support canvas!</canvas>
+
+        <footer> Copyrights of Amro @2016</footer>
+
+        <script>
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            var radius = 10;
+
+
+            var dragging = false;
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            context.lineWidth = radius*2;
+
+            var engage = function(e){
+                dragging = true;
+                putPoint(e);
+            }
+
+            var putPoint = function(e){
+                if(dragging){
+                    context.lineTo(e.clientX, e.clientY);
+                    context.stroke();
+                    context.beginPath();
+                    context.arc(e.clientX, e.clientY, radius, 0, Math.PI*2);
+                    context.fill();
+                    context.beginPath();
+                    context.moveTo(e.clientX, e.clientY);
+                }
+            }
+
+            var disengage = function(){
+                dragging = false;
+                context.beginPath();
+            }
+
+            canvas.addEventListener('mousedown', engage);
+            canvas.addEventListener('mouseup', disengage);
+            canvas.addEventListener('mousemove', putPoint);
+
+            //radius
+
+            var setRadius = function (newRadius){
+                if(newRadius<minRad) newRadius = minRad;
+                else if (newRadius>maxRad) newRadius = maxRad;
+                radius = newRadius;
+                context.lineWidth = radius*2;
+
+                radSpan.innerHTML = radius;
+            }
+
+            var minRad = 5;
+            var maxRad = 100;
+            var defaultRad = 10,
+                interval = 5,
+                radSpan = document.getElementById('radval'),
+                decRad = document.getElementById('decrad'),
+                incRad = document.getElementById('incrad');
+
+            decRad.addEventListener('click', function(){
+                setRadius(radius - interval);
+            });
+
+            incRad.addEventListener('click', function(){
+                setRadius(radius + interval);
+            });
+
+            setRadius(defaultRad);
+
+            //colors
+
+            var swatches = document.getElementsByClassName('swatch');
+
+            for (var i = 0, n=swatches.length; i < n; i++) {
+                swatches[i].addEventListener('click', setSwatch);
+            }
+
+            function setColor(color) {
+                context.fillStyle = color;
+                context.strokeStyle = color;
+                var active = document.getElementsByClassName('active')[0];
+                if (active) {
+                    active.className= 'swatch';
+                }
+            }
+
+            function setSwatch(e){
+                //identify swatch
+                var swatch = e.target;
+                //set color
+                setColor(swatch.style.backgroundColor);
+                //give active class
+                swatch.className += ' active';
+            }
+
+
+        </script>
+    </body>
+</html>
